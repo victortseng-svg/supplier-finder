@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>供應商搜尋工具 — Asuka Autotronics</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f5f3;
+    --surface: #ffffff;
+    --surface2: #f9f8f6;
+    --border: #e4e2db;
+    --border2: #d0cec7;
+    --text: #1a1a18;
+    --text2: #5a5a55;
+    --text3: #9a9990;
+    --accent: #1a6b4a;
+    --accent-light: #e8f4ef;
+    --accent-text: #145c3e;
+    --blue: #1a56a0;
+    --blue-light: #e8f0fb;
+    --amber: #a06010;
+    --amber-light: #fdf3e3;
+    --red: #a02020;
+    --red-light: #fdeaea;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  .app { display: flex; flex-direction: column; min-height: 100vh; }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-brand { display: flex; align-items: center; gap: 10px; }
+  .brand-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent); display: flex; align-items: center;
+    justify-content: center; color: white; font-size: 16px;
+  }
+  .brand-name { font-weight: 600; font-size: 15px; }
+  .brand-sub { font-size: 12px; color: var(--text3); }
+
+  .topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); transition: all 0.15s; text-decoration: none;
+  }
+  .btn:hover { background: var(--surface2); border-color: var(--border2); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-text); border-color: var(--accent-text); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── Main content area ── */
+  .main { flex: 1; display: flex; gap: 0; }
+
+  .sidebar {
+    width: 220px; min-height: calc(100vh - 56px);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+    flex-shrink: 0;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: var(--radius-sm);
+    font-size: 14px; cursor: pointer; color: var(--text2);
+    transition: all 0.15s; margin-bottom: 2px;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
+  .nav-icon { font-size: 18px; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto; background: var(--accent); color: white;
+    font-size: 11px; min-width: 18px; height: 18px;
+    border-radius: 9px; display: flex; align-items: center;
+    justify-content: center; padding: 0 5px;
+  }
+  .sidebar-section { font-size: 11px; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 16px 12px 6px; }
+
+  .content { flex: 1; padding: 28px 32px; max-width: 900px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+    box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+  .card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px; }
+
+  /* ── Forms ── */
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 500;
+    color: var(--text2); margin-bottom: 6px; }
+  .field label .req { color: #e05; margin-left: 2px; }
+  input[type="text"], input[type="password"], textarea, select {
+    width: 100%; padding: 9px 12px;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 14px; font-family: inherit; color: var(--text);
+    background: var(--surface); transition: border-color 0.15s;
+    outline: none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+  select { cursor: pointer; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* ── Cert chips ── */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .chip {
+    padding: 5px 12px; border: 1px solid var(--border);
+    border-radius: 20px; font-size: 13px; cursor: pointer;
+    color: var(--text2); background: var(--surface); transition: all 0.15s;
+    user-select: none;
+  }
+  .chip:hover { border-color: var(--border2); background: var(--surface2); }
+  .chip.on { background: var(--accent-light); color: var(--accent-text);
+    border-color: var(--accent); font-weight: 500; }
+
+  /* ── Photo upload ── */
+  .photo-zone {
+    border: 2px dashed var(--border2); border-radius: var(--radius);
+    padding: 20px; text-align: center; cursor: pointer;
+    transition: all 0.15s; background: var(--surface2); position: relative;
+  }
+  .photo-zone:hover { border-color: var(--accent); background: var(--accent-light); }
+  .photo-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .photo-zone p { font-size: 13px; color: var(--text3); margin-top: 6px; }
+  .photo-previews { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .photo-thumb {
+    width: 72px; height: 72px; border-radius: var(--radius-sm);
+    object-fit: cover; border: 1px solid var(--border);
+    position: relative;
+  }
+  .photo-thumb-wrap { position: relative; }
+  .photo-remove {
+    position: absolute; top: -6px; right: -6px; width: 18px; height: 18px;
+    background: var(--red); color: white; border-radius: 50%; border: none;
+    font-size: 11px; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; line-height: 1;
+  }
+
+  /* ── Search status ── */
+  .search-status {
+    background: var(--accent-light); border: 1px solid var(--accent);
+    border-radius: var(--radius); padding: 16px 20px;
+    display: none; align-items: center; gap: 12px; margin-bottom: 16px;
+  }
+  .search-status.show { display: flex; }
+  .spinner {
+    width: 20px; height: 20px; border: 2px solid var(--accent);
+    border-top-color: transparent; border-radius: 50%;
+    animation: spin 0.8s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .status-text { font-size: 14px; color: var(--accent-text); }
+
+  /* ── Results ── */
+  .results-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .results-count { font-size: 14px; color: var(--text2); }
+
+  .supplier-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 12px;
+    transition: box-shadow 0.15s;
+  }
+  .supplier-card:hover { box-shadow: var(--shadow); }
+  .supplier-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .supplier-name { font-size: 16px; font-weight: 600; }
+  .supplier-country { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .supplier-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .badge {
+    font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 500;
+  }
+  .badge-green { background: var(--accent-light); color: var(--accent-text); }
+  .badge-blue { background: var(--blue-light); color: var(--blue); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); }
+
+  .supplier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+  .supplier-field { font-size: 13px; }
+  .supplier-field .sf-label { color: var(--text3); font-size: 12px; margin-bottom: 2px; }
+  .supplier-field a { color: var(--blue); text-decoration: none; }
+  .supplier-field a:hover { text-decoration: underline; }
+
+  .supplier-notes {
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);
+    font-size: 13px; color: var(--text2); line-height: 1.6;
+  }
+
+  /* ── History ── */
+  .history-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); margin-bottom: 8px;
+    background: var(--surface); transition: all 0.15s;
+  }
+  .history-item:hover { border-color: var(--border2); background: var(--surface2); }
+  .history-icon { font-size: 20px; }
+  .history-info { flex: 1; }
+  .history-name { font-size: 14px; font-weight: 500; }
+  .history-meta { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* ── Settings ── */
+  .api-key-wrap { position: relative; }
+  .api-key-toggle {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: var(--text3);
+    font-size: 14px; padding: 4px;
+  }
+  .api-key-wrap input { padding-right: 36px; }
+
+  .alert {
+    padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px;
+    margin-bottom: 16px; display: none;
+  }
+  .alert.show { display: block; }
+  .alert-success { background: var(--accent-light); color: var(--accent-text); border: 1px solid var(--accent); }
+  .alert-error { background: var(--red-light); color: var(--red); border: 1px solid #e8aaaa; }
+
+  /* ── Setup overlay ── */
+  #setupOverlay {
+    position: fixed; inset: 0; background: rgba(26,26,24,0.6);
+    z-index: 999; display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(3px);
+  }
+  .setup-box {
+    background: var(--surface); border-radius: 14px; padding: 36px;
+    max-width: 480px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  }
+  .setup-logo { font-size: 36px; margin-bottom: 16px; }
+  .setup-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .setup-desc { font-size: 14px; color: var(--text2); margin-bottom: 24px; line-height: 1.6; }
+  .setup-link { color: var(--blue); text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 24px; }
+  .setup-link:hover { text-decoration: underline; }
+
+  /* ── Page visibility ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .sidebar { display: none; }
+    .content { padding: 20px 16px; }
+    .row2, .row3 { grid-template-columns: 1fr; }
+    .topbar { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Setup Overlay -->
+<div id="setupOverlay">
+  <div class="setup-box">
+    <div class="setup-logo">🔍</div>
+    <div class="setup-title">供應商搜尋工具</div>
+    <div class="setup-desc">
+      這個工具使用 Claude AI 自動搜尋全球供應商資訊。<br>
+      首次使用需要設定 Anthropic API Key。
+    </div>
+    <a class="setup-link" href="https://console.anthropic.com/settings/keys" target="_blank">
+      ↗ 前往 Anthropic Console 取得 API Key
+    </a>
+    <div class="field">
+      <label>API Key <span class="req">*</span></label>
+      <div class="api-key-wrap">
+        <input type="password" id="setupApiKey" placeholder="sk-ant-api03-..." />
+        <button class="api-key-toggle" onclick="togglePwd('setupApiKey', this)">👁</button>
+      </div>
+    </div>
+    <div id="setupError" class="alert alert-error"></div>
+    <button class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;" onclick="saveApiKey()">
+      開始使用 →
+    </button>
+  </div>
+</div>
+
+<!-- App Shell -->
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">🔍</div>
+      <div>
+        <div class="brand-name">供應商搜尋工具</div>
+        <div class="brand-sub">Asuka Autotronics</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-sm" onclick="exportHistory()">⬇ 匯出紀錄</button>
+      <button class="btn btn-sm" onclick="showPage('settings')">⚙ 設定</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="sidebar">
+      <div class="sidebar-section">功能</div>
+      <div class="nav-item active" id="nav-search" onclick="showPage('search')">
+        <span class="nav-icon">🔍</span> 搜尋供應商
+      </div>
+      <div class="nav-item" id="nav-history" onclick="showPage('history')">
+        <span class="nav-icon">📋</span> 搜尋紀錄
+        <span class="nav-badge" id="historyCount">0</span>
+      </div>
+      <div class="sidebar-section" style="margin-top:8px;">其他</div>
+      <div class="nav-item" id="nav-settings" onclick="showPage('settings')">
+        <span class="nav-icon">⚙</span> API 設定
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ Page: Search ══ -->
+      <div class="page active" id="page-search">
+        <div class="card">
+          <div class="card-title">📦 產品資訊</div>
+
+          <div class="row2">
+            <div class="field">
+              <label>產品名稱 <span class="req">*</span></label>
+              <input type="text" id="pName" placeholder="例：工業用伺服馬達 48V 500W" />
+            </div>
+            <div class="field">
+              <label>產品類別</label>
+              <select id="pCat">
+                <option value="">請選擇...</option>
+                <option>電子零組件</option>
+                <option>機械零件</option>
+                <option>工業耗材</option>
+                <option>電氣設備</option>
+                <option>感測器 / 儀器</option>
+                <option>連接器 / 線材</option>
+                <option>PCB / 電路板</option>
+                <option>外殼 / 機構件</option>
+                <option>汽車零件</option>
+                <option>其他</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>規格描述 <span class="req">*</span></label>
+            <textarea id="pDesc" placeholder="請描述產品用途、關鍵規格、尺寸、材質、功能需求。若有上傳照片，可補充說明照片中看到的特徵。"></textarea>
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <label>預計採購量 / MOQ 需求</label>
+              <input type="text" id="pMoq" placeholder="例：每批 500 pcs" />
+            </div>
+            <div class="field">
+              <label>目標預算（選填）</label>
+              <input type="text" id="pBudget" placeholder="例：USD 15-20 / pcs" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>需要認證</label>
+            <div class="chip-group" id="certChips">
+              <span class="chip" onclick="toggleChip(this)">CE</span>
+              <span class="chip" onclick="toggleChip(this)">RoHS</span>
+              <span class="chip" onclick="toggleChip(this)">ISO 9001</span>
+              <span class="chip" onclick="toggleChip(this)">UL</span>
+              <span class="chip" onclick="toggleChip(this)">IP65+</span>
+              <span class="chip" onclick="toggleChip(this)">IATF 16949</span>
+              <span class="chip" onclick="toggleChip(this)">AEC-Q100</span>
+              <span class="chip" onclick="toggleChip(this)">不限</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>偏好地區</label>
+            <div class="chip-group" id="regionChips">
+              <span class="chip" onclick="toggleChip(this)">台灣</span>
+              <span class="chip" onclick="toggleChip(this)">日本</span>
+              <span class="chip" onclick="toggleChip(this)">中國</span>
+              <span class="chip" onclick="toggleChip(this)">韓國</span>
+              <span class="chip" onclick="toggleChip(this)">歐洲</span>
+              <span class="chip" onclick="toggleChip(this)">美國</span>
+              <span class="chip" onclick="toggleChip(this)">不限</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>產品照片（可選，支援多張）</label>
+            <div class="photo-zone" id="photoZone" ondragover="ev.preventDefault()" ondrop="handleDrop(event)">
+              <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotos(this.files)" />
+              <div style="font-size:28px;">📷</div>
+              <p>點擊或拖曳照片至此處<br>支援 JPG、PNG、WEBP</p>
+            </div>
+            <div class="photo-previews" id="photoPreviews"></div>
+          </div>
+
+          <div class="field">
+            <label>補充說明（選填）</label>
+            <input type="text" id="pNotes" placeholder="例：需提供樣品、偏好有台灣代理商的廠商、有特殊包裝要求…" />
+          </div>
+        </div>
+
+        <!-- Search status -->
+        <div class="search-status" id="searchStatus">
+          <div class="spinner"></div>
+          <div class="status-text" id="statusText">正在搜尋供應商中，請稍候…</div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom:24px;">
+          <button class="btn btn-primary" style="flex:1; justify-content:center; padding:11px 16px;" onclick="doSearch()" id="searchBtn">
+            🔍 搜尋供應商
+          </button>
+          <button class="btn" onclick="clearForm()">✕ 清除</button>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsArea" style="display:none;">
+          <div class="results-header">
+            <div>
+              <div style="font-size:17px; font-weight:600;">搜尋結果</div>
+              <div class="results-count" id="resultsCount"></div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-sm" onclick="exportCurrentCSV()">⬇ 匯出 CSV</button>
+              <button class="btn btn-sm" onclick="copyResults()">📋 複製</button>
+            </div>
+          </div>
+          <div id="supplierList"></div>
+        </div>
+      </div>
+
+      <!-- ══ Page: History ══ -->
+      <div class="page" id="page-history">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <div style="font-size:20px; font-weight:600;">搜尋紀錄</div>
+          <button class="btn btn-sm" onclick="clearHistory()">🗑 清除全部</button>
+        </div>
+        <div id="historyList"></div>
+      </div>
+
+      <!-- ══ Page: Settings ══ -->
+      <div class="page" id="page-settings">
+        <div style="font-size:20px; font-weight:600; margin-bottom:20px;">API 設定</div>
+        <div class="card">
+          <div class="card-title">🔑 Claude API Key</div>
+          <p style="font-size:13px; color:var(--text2); margin-bottom:16px; line-height:1.6;">
+            API Key 僅儲存在本機瀏覽器中，不會上傳至任何伺服器。<br>
+            每位同事在自己的電腦上開啟此檔案時，需個別設定一次。
+          </p>
+          <div class="field">
+            <label>Anthropic API Key</label>
+            <div class="api-key-wrap">
+              <input type="password" id="settingsApiKey" placeholder="sk-ant-api03-..." />
+              <button class="api-key-toggle" onclick="togglePwd('settingsApiKey', this)">👁</button>
+            </div>
+          </div>
+          <div id="settingsAlert" class="alert"></div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary" onclick="updateApiKey()">儲存</button>
+            <a class="btn" href="https://console.anthropic.com/settings/keys" target="_blank">↗ 取得 API Key</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📊 使用統計</div>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+            <div style="text-align:center; padding:16px; background:var(--surface2); border-radius:var(--radius-sm);">
+              <div style="font-size:26px; font-weight:700; color:var(--accent);" id="statTotal">0</div>
+              <div style="font-size:12px; color:var(--text3); margin-top:4px;">總搜尋次數</div>
+            </div>
+            <div style="text-align:center; padding:16px; background:var(--surface2); border-radius:var(--radius-sm);">
+              <div style="font-size:26px; font-weight:700; color:var(--blue);" id="statSuppliers">0</div>
+              <div style="font-size:12px; color:var(--text3); margin-top:4px;">找到供應商數</div>
+            </div>
+            <div style="text-align:center; padding:16px; background:var(--surface2); border-radius:var(--radius-sm);">
+              <div style="font-size:26px; font-weight:700; color:var(--amber);" id="statRecent">—</div>
+              <div style="font-size:12px; color:var(--text3); margin-top:4px;">最近搜尋日期</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ── State ──────────────────────────────────────────────
+const STATE = {
+  photos: [],       // { name, dataUrl, base64, mimeType }
+  results: null,    // last search results
+  history: [],
+};
+
+// ── Init ───────────────────────────────────────────────
+(function init() {
+  const key = localStorage.getItem('aa_api_key');
+  if (key) document.getElementById('setupOverlay').style.display = 'none';
+
+  STATE.history = JSON.parse(localStorage.getItem('aa_history') || '[]');
+  updateHistoryBadge();
+  renderHistoryPage();
+  updateStats();
+  if (key) document.getElementById('settingsApiKey').value = key;
+})();
+
+// ── Navigation ─────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const nav = document.getElementById('nav-' + name);
+  if (nav) nav.classList.add('active');
+  if (name === 'history') renderHistoryPage();
+  if (name === 'settings') updateStats();
+}
+
+// ── API Key ─────────────────────────────────────────────
+function saveApiKey() {
+  const key = document.getElementById('setupApiKey').value.trim();
+  if (!key.startsWith('sk-ant')) {
+    showSetupError('請輸入有效的 API Key（應以 sk-ant 開頭）');
+    return;
+  }
+  localStorage.setItem('aa_api_key', key);
+  document.getElementById('setupOverlay').style.display = 'none';
+  document.getElementById('settingsApiKey').value = key;
+}
+
+function updateApiKey() {
+  const key = document.getElementById('settingsApiKey').value.trim();
+  if (!key.startsWith('sk-ant')) {
+    showAlert('settingsAlert', 'error', '請輸入有效的 API Key（應以 sk-ant 開頭）');
+    return;
+  }
+  localStorage.setItem('aa_api_key', key);
+  showAlert('settingsAlert', 'success', '✓ API Key 已儲存');
+}
+
+function showSetupError(msg) {
+  const el = document.getElementById('setupError');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function showAlert(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = 'alert show ' + (type === 'success' ? 'alert-success' : 'alert-error');
+  el.textContent = msg;
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function togglePwd(id, btn) {
+  const el = document.getElementById(id);
+  if (el.type === 'password') { el.type = 'text'; btn.textContent = '🙈'; }
+  else { el.type = 'password'; btn.textContent = '👁'; }
+}
+
+// ── Chip toggles ────────────────────────────────────────
+function toggleChip(el) { el.classList.toggle('on'); }
+function getChips(groupId) {
+  return [...document.querySelectorAll('#' + groupId + ' .chip.on')]
+    .map(c => c.textContent).join('、');
+}
+
+// ── Photos ──────────────────────────────────────────────
+function handlePhotos(files) {
+  [...files].forEach(f => {
+    if (!f.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;
+      const base64 = dataUrl.split(',')[1];
+      STATE.photos.push({ name: f.name, dataUrl, base64, mimeType: f.type });
+      renderPhotoPreviews();
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  handlePhotos(e.dataTransfer.files);
+}
+
+function renderPhotoPreviews() {
+  const container = document.getElementById('photoPreviews');
+  container.innerHTML = STATE.photos.map((p, i) => `
+    <div class="photo-thumb-wrap">
+      <img class="photo-thumb" src="${p.dataUrl}" alt="${p.name}" title="${p.name}" />
+      <button class="photo-remove" onclick="removePhoto(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function removePhoto(i) {
+  STATE.photos.splice(i, 1);
+  renderPhotoPreviews();
+}
+
+// ── Search ──────────────────────────────────────────────
+async function doSearch() {
+  const apiKey = localStorage.getItem('aa_api_key');
+  if (!apiKey) { document.getElementById('setupOverlay').style.display = 'flex'; return; }
+
+  const name = document.getElementById('pName').value.trim();
+  const desc = document.getElementById('pDesc').value.trim();
+  if (!name) { alert('請填寫產品名稱'); return; }
+  if (!desc) { alert('請填寫規格描述'); return; }
+
+  const cat    = document.getElementById('pCat').value;
+  const moq    = document.getElementById('pMoq').value.trim();
+  const budget = document.getElementById('pBudget').value.trim();
+  const certs  = getChips('certChips');
+  const region = getChips('regionChips');
+  const notes  = document.getElementById('pNotes').value.trim();
+
+  // Show loading
+  const statusEl = document.getElementById('searchStatus');
+  const statusText = document.getElementById('statusText');
+  const searchBtn = document.getElementById('searchBtn');
+  statusEl.classList.add('show');
+  searchBtn.disabled = true;
+  document.getElementById('resultsArea').style.display = 'none';
+
+  const steps = [
+    '正在分析產品需求…',
+    '搜尋全球供應商資料庫…',
+    '篩選符合規格的廠商…',
+    '整理聯絡資訊與認證資料…',
+    '產生供應商報告中…',
+  ];
+  let si = 0;
+  const stepTimer = setInterval(() => {
+    statusText.textContent = steps[Math.min(si++, steps.length - 1)];
+  }, 2800);
+
+  // Build prompt
+  let prompt = `你是一位專業的工業零件採購顧問。請根據以下產品需求，搜尋並整理全球供應商資訊。
+
+【產品名稱】${name}
+【產品類別】${cat || '未指定'}
+【規格描述】${desc}`;
+  if (moq)    prompt += `\n【採購量需求】${moq}`;
+  if (budget) prompt += `\n【目標預算】${budget}`;
+  if (certs)  prompt += `\n【需要認證】${certs}`;
+  if (region) prompt += `\n【偏好地區】${region}`;
+  if (notes)  prompt += `\n【補充說明】${notes}`;
+
+  prompt += `
+
+請搜尋並整理至少 6 家符合需求的供應商，以 JSON 格式回覆，格式如下：
+
+{
+  "summary": "簡短的市場與供應鏈說明（2-3句）",
+  "suppliers": [
+    {
+      "rank": 1,
+      "name": "公司名稱",
+      "country": "國家/地區",
+      "website": "網站 URL",
+      "email": "聯絡 Email（若有）",
+      "phone": "聯絡電話（若有）",
+      "certifications": ["CE", "RoHS"],
+      "moq": "最小訂購量",
+      "lead_time": "交期",
+      "speciality": "該廠商的特色或優勢（1句話）",
+      "notes": "補充備註"
+    }
+  ],
+  "tips": "採購建議（1-2句）"
+}
+
+只回覆 JSON，不要加其他文字。`;
+
+  // Build message content
+  const content = [];
+  if (STATE.photos.length > 0) {
+    STATE.photos.forEach(p => {
+      content.push({ type: 'image', source: { type: 'base64', media_type: p.mimeType, data: p.base64 } });
+    });
+    content.push({ type: 'text', text: '以上是產品照片，請根據照片辨識產品特徵，結合以下文字需求搜尋供應商：\n\n' + prompt });
+  } else {
+    content.push({ type: 'text', text: prompt });
+  }
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4096,
+        messages: [{ role: 'user', content }]
+      })
+    });
+
+    clearInterval(stepTimer);
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.error?.message || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    const raw = data.content[0].text.trim();
+
+    // Parse JSON (strip code fences if any)
+    let jsonStr = raw;
+    const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fenceMatch) jsonStr = fenceMatch[1];
+
+    const result = JSON.parse(jsonStr);
+    STATE.results = { name, cat, result, date: new Date().toLocaleDateString('zh-TW') };
+
+    // Save to history
+    STATE.history.unshift({
+      name, cat, date: STATE.results.date,
+      supplierCount: result.suppliers.length,
+      result
+    });
+    if (STATE.history.length > 30) STATE.history.pop();
+    localStorage.setItem('aa_history', JSON.stringify(STATE.history));
+    updateHistoryBadge();
+
+    // Render results
+    renderResults(result, name);
+
+  } catch (e) {
+    clearInterval(stepTimer);
+    alert('搜尋失敗：' + e.message + '\n\n請確認 API Key 是否正確，或稍後再試。');
+  } finally {
+    statusEl.classList.remove('show');
+    searchBtn.disabled = false;
+  }
+}
+
+// ── Render results ──────────────────────────────────────
+function renderResults(result, productName) {
+  const area = document.getElementById('resultsArea');
+  const list = document.getElementById('supplierList');
+  area.style.display = 'block';
+  document.getElementById('resultsCount').textContent =
+    `找到 ${result.suppliers.length} 家供應商 · 產品：${productName}`;
+
+  // Summary banner
+  let html = '';
+  if (result.summary) {
+    html += `<div style="background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius);
+      padding:14px 18px;margin-bottom:16px;font-size:14px;color:var(--accent-text);line-height:1.6;">
+      💡 ${result.summary}</div>`;
+  }
+
+  result.suppliers.forEach((s, i) => {
+    const certs = (s.certifications || []).map(c =>
+      `<span class="badge badge-green">${c}</span>`).join('');
+
+    html += `<div class="supplier-card">
+      <div class="supplier-header">
+        <div>
+          <div class="supplier-name">${i + 1}. ${s.name}</div>
+          <div class="supplier-country">📍 ${s.country || '—'}</div>
+          <div class="supplier-badges" style="margin-top:6px;">${certs}</div>
+        </div>
+        <div style="text-align:right; font-size:12px; color:var(--text3); flex-shrink:0;">
+          ${s.moq ? `<div>MOQ: <strong style="color:var(--text)">${s.moq}</strong></div>` : ''}
+          ${s.lead_time ? `<div>交期: <strong style="color:var(--text)">${s.lead_time}</strong></div>` : ''}
+        </div>
+      </div>
+      <div class="supplier-grid">
+        ${s.website ? `<div class="supplier-field"><div class="sf-label">🌐 網站</div>
+          <a href="${s.website}" target="_blank">${s.website.replace(/^https?:\/\//, '')}</a></div>` : ''}
+        ${s.email ? `<div class="supplier-field"><div class="sf-label">✉ Email</div>
+          <a href="mailto:${s.email}">${s.email}</a></div>` : ''}
+        ${s.phone ? `<div class="supplier-field"><div class="sf-label">📞 電話</div>${s.phone}</div>` : ''}
+        ${s.speciality ? `<div class="supplier-field" style="grid-column: 1 / -1;">
+          <div class="sf-label">⭐ 特色</div>${s.speciality}</div>` : ''}
+      </div>
+      ${s.notes ? `<div class="supplier-notes">📝 ${s.notes}</div>` : ''}
+    </div>`;
+  });
+
+  if (result.tips) {
+    html += `<div style="background:var(--amber-light);border:1px solid #e0c070;border-radius:var(--radius);
+      padding:14px 18px;margin-top:4px;font-size:14px;color:var(--amber);line-height:1.6;">
+      💼 採購建議：${result.tips}</div>`;
+  }
+
+  list.innerHTML = html;
+  area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── History ─────────────────────────────────────────────
+function renderHistoryPage() {
+  const list = document.getElementById('historyList');
+  if (!STATE.history.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>
+      <div>尚無搜尋紀錄</div><div style="font-size:13px;margin-top:6px;">搜尋後的結果會自動儲存在這裡</div></div>`;
+    return;
+  }
+  list.innerHTML = STATE.history.map((h, i) => `
+    <div class="history-item">
+      <div class="history-icon">📦</div>
+      <div class="history-info">
+        <div class="history-name">${h.name}</div>
+        <div class="history-meta">${h.cat || '未分類'} · ${h.date} · 找到 ${h.supplierCount} 家供應商</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <button class="btn btn-sm" onclick="reloadResult(${i})">查看結果</button>
+        <button class="btn btn-sm" onclick="exportHistoryItem(${i})">⬇ CSV</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function reloadResult(i) {
+  const h = STATE.history[i];
+  STATE.results = { name: h.name, cat: h.cat, result: h.result, date: h.date };
+  showPage('search');
+  renderResults(h.result, h.name);
+}
+
+function updateHistoryBadge() {
+  document.getElementById('historyCount').textContent = STATE.history.length;
+}
+
+function clearHistory() {
+  if (!confirm('確定要清除所有搜尋紀錄？')) return;
+  STATE.history = [];
+  localStorage.removeItem('aa_history');
+  updateHistoryBadge();
+  renderHistoryPage();
+  updateStats();
+}
+
+// ── Export ──────────────────────────────────────────────
+function suppliersToCSV(suppliers, productName) {
+  const header = ['排名', '公司名稱', '國家/地區', '網站', 'Email', '電話', '認證', 'MOQ', '交期', '特色', '備註'];
+  const rows = suppliers.map((s, i) => [
+    i + 1, s.name, s.country || '', s.website || '', s.email || '',
+    s.phone || '', (s.certifications || []).join('; '),
+    s.moq || '', s.lead_time || '', s.speciality || '', s.notes || ''
+  ]);
+  const csvContent = [header, ...rows].map(r =>
+    r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+  ).join('\n');
+  const BOM = '﻿';
+  return BOM + csvContent;
+}
+
+function downloadCSV(content, filename) {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportCurrentCSV() {
+  if (!STATE.results) return;
+  const csv = suppliersToCSV(STATE.results.result.suppliers, STATE.results.name);
+  downloadCSV(csv, `供應商_${STATE.results.name}_${STATE.results.date}.csv`);
+}
+
+function exportHistoryItem(i) {
+  const h = STATE.history[i];
+  const csv = suppliersToCSV(h.result.suppliers, h.name);
+  downloadCSV(csv, `供應商_${h.name}_${h.date}.csv`);
+}
+
+function exportHistory() {
+  if (!STATE.history.length) { alert('尚無搜尋紀錄'); return; }
+  // Combine all into one CSV
+  const allRows = [];
+  STATE.history.forEach(h => {
+    h.result.suppliers.forEach((s, i) => {
+      allRows.push([
+        h.date, h.name, i + 1, s.name, s.country || '', s.website || '',
+        s.email || '', s.phone || '', (s.certifications || []).join('; '),
+        s.moq || '', s.lead_time || '', s.speciality || ''
+      ]);
+    });
+  });
+  const header = ['搜尋日期', '產品名稱', '排名', '供應商', '國家', '網站', 'Email', '電話', '認證', 'MOQ', '交期', '特色'];
+  const content = '﻿' + [header, ...allRows].map(r =>
+    r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+  ).join('\n');
+  downloadCSV(content, `供應商搜尋紀錄_${new Date().toLocaleDateString('zh-TW').replace(/\//g, '-')}.csv`);
+}
+
+function copyResults() {
+  if (!STATE.results) return;
+  const s = STATE.results.result;
+  let text = `供應商搜尋結果：${STATE.results.name}\n${'─'.repeat(40)}\n\n`;
+  s.suppliers.forEach((sup, i) => {
+    text += `${i+1}. ${sup.name} (${sup.country || '—'})\n`;
+    if (sup.website) text += `   網站：${sup.website}\n`;
+    if (sup.email)   text += `   Email：${sup.email}\n`;
+    if (sup.phone)   text += `   電話：${sup.phone}\n`;
+    if (sup.moq)     text += `   MOQ：${sup.moq}\n`;
+    text += '\n';
+  });
+  navigator.clipboard.writeText(text).then(() => alert('已複製到剪貼簿！'));
+}
+
+// ── Misc ─────────────────────────────────────────────────
+function clearForm() {
+  ['pName','pDesc','pMoq','pBudget','pNotes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pCat').value = '';
+  document.querySelectorAll('.chip.on').forEach(c => c.classList.remove('on'));
+  STATE.photos = [];
+  renderPhotoPreviews();
+  document.getElementById('resultsArea').style.display = 'none';
+  document.getElementById('photoInput').value = '';
+}
+
+function updateStats() {
+  const total = STATE.history.length;
+  const suppliers = STATE.history.reduce((s, h) => s + h.supplierCount, 0);
+  const recent = total ? STATE.history[0].date : '—';
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statSuppliers').textContent = suppliers;
+  document.getElementById('statRecent').textContent = recent;
+}
+</script>
+</body>
+</html>
