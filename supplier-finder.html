@@ -296,9 +296,13 @@
       這個工具使用 Claude AI 自動搜尋全球供應商資訊。<br>
       首次使用需要設定 Anthropic API Key。
     </div>
-    <a class="setup-link" href="https://console.anthropic.com/settings/keys" target="_blank">
-      ↗ 前往 Anthropic Console 取得 API Key
+    <a class="setup-link" href="https://platform.claude.com/settings/keys" target="_blank">
+      ↗ 前往 Claude Console 取得 / 重新建立 API Key
     </a>
+    <p style="font-size:12px; color:#888; margin-bottom:20px; line-height:1.6;">
+      ⚠️ API Key 只在建立時顯示一次，忘記後無法查看，只能重新建一支新的。<br>
+      請務必在建立後立即複製並妥善保存。
+    </p>
     <div class="field">
       <label>API Key <span class="req">*</span></label>
       <div class="api-key-wrap">
@@ -479,8 +483,12 @@
           <div class="card-title">🔑 Claude API Key</div>
           <p style="font-size:13px; color:var(--text2); margin-bottom:16px; line-height:1.6;">
             API Key 僅儲存在本機瀏覽器中，不會上傳至任何伺服器。<br>
-            每位同事在自己的電腦上開啟此檔案時，需個別設定一次。
+            每位同事在自己的電腦上開啟此頁面時，需個別設定一次。
           </p>
+          <div style="background:var(--amber-light);border:1px solid #e0c070;border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--amber);line-height:1.6;">
+            ⚠️ <strong>忘記 Key？</strong> API Key 建立後只顯示一次，忘記後無法查看。<br>
+            請前往 <a href="https://platform.claude.com/settings/keys" target="_blank" style="color:var(--blue);">platform.claude.com/settings/keys</a> 重新建立一支新的。
+          </div>
           <div class="field">
             <label>Anthropic API Key</label>
             <div class="api-key-wrap">
@@ -491,7 +499,7 @@
           <div id="settingsAlert" class="alert"></div>
           <div style="display:flex; gap:10px;">
             <button class="btn btn-primary" onclick="updateApiKey()">儲存</button>
-            <a class="btn" href="https://console.anthropic.com/settings/keys" target="_blank">↗ 取得 API Key</a>
+            <a class="btn" href="https://platform.claude.com/settings/keys" target="_blank">↗ 取得 / 重建 API Key</a>
           </div>
         </div>
 
