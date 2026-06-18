@@ -459,6 +459,7 @@
               <div class="results-count" id="resultsCount"></div>
             </div>
             <div style="display:flex; gap:8px;">
+              <button class="btn btn-sm btn-primary" onclick="scrollToForm()">✏️ 修改再搜尋</button>
               <button class="btn btn-sm" onclick="exportCurrentCSV()">⬇ 匯出 CSV</button>
               <button class="btn btn-sm" onclick="copyResults()">📋 複製</button>
             </div>
@@ -768,9 +769,10 @@ async function doSearch() {
     const result = JSON.parse(jsonStr);
     STATE.results = { name, cat, result, date: new Date().toLocaleDateString('zh-TW') };
 
-    // Save to history
+    // Save to history (including all form fields for restoration)
     STATE.history.unshift({
-      name, cat, date: STATE.results.date,
+      name, cat, desc, moq, budget, certs, region, notes,
+      date: STATE.results.date,
       supplierCount: result.suppliers.length,
       result
     });
@@ -879,7 +881,33 @@ function reloadResult(i) {
   const h = STATE.history[i];
   STATE.results = { name: h.name, cat: h.cat, result: h.result, date: h.date };
   showPage('search');
+
+  // Restore all form fields
+  document.getElementById('pName').value   = h.name   || '';
+  document.getElementById('pDesc').value   = h.desc   || '';
+  document.getElementById('pMoq').value    = h.moq    || '';
+  document.getElementById('pBudget').value = h.budget || '';
+  document.getElementById('pNotes').value  = h.notes  || '';
+  document.getElementById('pCat').value    = h.cat    || '';
+
+  // Restore cert chips
+  document.querySelectorAll('#certChips .chip').forEach(c => {
+    c.classList.toggle('on', !!(h.certs && h.certs.includes(c.textContent.trim())));
+  });
+  // Restore region chips
+  document.querySelectorAll('#regionChips .chip').forEach(c => {
+    c.classList.toggle('on', !!(h.region && h.region.includes(c.textContent.trim())));
+  });
+
+  // Photos can't be restored from history (not stored)
+  STATE.photos = [];
+  renderPhotoPreviews();
+
   renderResults(h.result, h.name);
+}
+
+function scrollToForm() {
+  document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function updateHistoryBadge() {
