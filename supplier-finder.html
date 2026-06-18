@@ -695,21 +695,19 @@ async function doSearch() {
 請搜尋並整理至少 6 家符合需求的供應商，以 JSON 格式回覆，格式如下：
 
 【重要網站規則】
-- website 欄位必須填寫可從台灣/全球直接開啟的網址
+- website 欄位只能填寫你確定真實存在的官網，不確定就留空字串 ""
 - 優先填寫廠商的國際官網（.com、.com.tw 等），避免填 .cn 網域
-- 若為中國廠商且無國際官網，請填寫其 Alibaba 國際站頁面（格式：https://廠商名.en.alibaba.com）或 Made-in-China（https://廠商名.en.made-in-china.com）
-- alibaba_url 欄位另外提供 Alibaba 國際站搜尋連結（https://www.alibaba.com/trade/search?SearchText=公司英文名）
-- 請盡量找有英文網站、有在 Alibaba/Global Sources 開店的廠商
+- 絕對不能填 Alibaba 子網域（如 xxx.en.alibaba.com）或 Made-in-China 子網域，因為這些幾乎都是不存在的
+- 寧可 website 留空，也不要填一個可能不存在的 URL
 
 {
   "summary": "簡短的市場與供應鏈說明（2-3句）",
   "suppliers": [
     {
       "rank": 1,
-      "name": "公司名稱",
+      "name": "公司名稱（同時提供英文名）",
       "country": "國家/地區",
-      "website": "國際可訪問的網站 URL（非 .cn）",
-      "alibaba_url": "Alibaba 國際站廠商或搜尋頁面 URL",
+      "website": "確定真實存在的官網 URL，不確定請填空字串",
       "email": "聯絡 Email（若有）",
       "phone": "聯絡電話（若有）",
       "certifications": ["CE", "RoHS"],
@@ -827,8 +825,6 @@ function renderResults(result, productName) {
       <div class="supplier-grid">
         ${s.website ? `<div class="supplier-field"><div class="sf-label">🌐 官網</div>
           <a href="${s.website}" target="_blank">${s.website.replace(/^https?:\/\//, '')}</a></div>` : ''}
-        ${s.alibaba_url ? `<div class="supplier-field"><div class="sf-label">🛒 Alibaba</div>
-          <a href="${s.alibaba_url}" target="_blank">Alibaba 頁面</a></div>` : ''}
         ${s.email ? `<div class="supplier-field"><div class="sf-label">✉ Email</div>
           <a href="mailto:${s.email}">${s.email}</a></div>` : ''}
         ${s.phone ? `<div class="supplier-field"><div class="sf-label">📞 電話</div>${s.phone}</div>` : ''}
