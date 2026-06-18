@@ -834,8 +834,8 @@ function renderResults(result, productName) {
       ${s.notes ? `<div class="supplier-notes">📝 ${s.notes}</div>` : ''}
       <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
         <a class="btn btn-sm" href="https://www.google.com/search?q=${encodeURIComponent(s.name + ' supplier international website')}" target="_blank">🔍 Google 搜尋</a>
-        <a class="btn btn-sm" href="https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(s.name)}" target="_blank">🛒 Alibaba 搜尋</a>
-        <a class="btn btn-sm" href="https://www.globalsources.com/gsol/I/Search-manufacturer/k/${encodeURIComponent(s.name)}" target="_blank">🌏 Global Sources</a>
+        <a class="btn btn-sm" href="https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(toEnglishSearch(s.name))}" target="_blank">🛒 Alibaba 搜尋</a>
+        <a class="btn btn-sm" href="https://www.globalsources.com/gsol/I/Search-manufacturer/k/${encodeURIComponent(toEnglishSearch(s.name))}" target="_blank">🌏 Global Sources</a>
       </div>
     </div>`;
   });
@@ -904,6 +904,15 @@ function reloadResult(i) {
 
 function scrollToForm() {
   document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Strip CJK characters and parentheses, return clean English-only name for search
+function toEnglishSearch(name) {
+  return name
+    .replace(/[　-鿿豈-﫿＀-￯㐀-䶿]/g, ' ')
+    .replace(/[（）()【】「」『』]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function updateHistoryBadge() {
