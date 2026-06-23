@@ -272,6 +272,20 @@
   .setup-link { color: var(--blue); text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 24px; }
   .setup-link:hover { text-decoration: underline; }
 
+  /* ── Reference suppliers ── */
+  .ref-row {
+    display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px;
+    align-items: center; margin-bottom: 8px;
+  }
+  .ref-row input { margin: 0; }
+  .btn-remove {
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text3); cursor: pointer;
+    font-size: 14px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .btn-remove:hover { background: var(--red-light); border-color: var(--red); color: var(--red); }
+
   /* ── Page visibility ── */
   .page { display: none; }
   .page.active { display: block; }
@@ -438,6 +452,15 @@
           </div>
         </div>
 
+        <!-- Reference suppliers card -->
+        <div class="card">
+          <div class="card-title">🏭 參考廠商（選填）
+            <span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:4px;">填入你已知的同類廠商，AI 會以此為基準搜尋類似供應商</span>
+          </div>
+          <div id="refSupplierList"></div>
+          <button class="btn btn-sm" style="margin-top:8px;" onclick="addRefSupplier()">＋ 新增參考廠商</button>
+        </div>
+
         <!-- Search status -->
         <div class="search-status" id="searchStatus">
           <div class="spinner"></div>
@@ -533,6 +556,7 @@ const STATE = {
   photos: [],       // { name, dataUrl, base64, mimeType }
   results: null,    // last search results
   history: [],
+  refSuppliers: [], // { name, url }
 };
 
 // ── Init ───────────────────────────────────────────────
@@ -598,6 +622,39 @@ function togglePwd(id, btn) {
   if (el.type === 'password') { el.type = 'text'; btn.textContent = '🙈'; }
   else { el.type = 'password'; btn.textContent = '👁'; }
 }
+
+// ── Reference Suppliers ─────────────────────────────────
+function addRefSupplier(name='', url='') {
+  STATE.refSuppliers.push({ name, url });
+  renderRefSuppliers();
+}
+
+function removeRefSupplier(i) {
+  STATE.refSuppliers.splice(i, 1);
+  renderRefSuppliers();
+}
+
+function renderRefSuppliers() {
+  const list = document.getElementById('refSupplierList');
+  if (!STATE.refSuppliers.length) {
+    list.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:4px 0;">尚未新增參考廠商</div>';
+    return;
+  }
+  list.innerHTML = STATE.refSuppliers.map((r, i) => `
+    <div class="ref-row">
+      <input type="text" placeholder="廠商名稱（中文或英文）" value="${r.name.replace(/"/g,'&quot;')}"
+        oninput="STATE.refSuppliers[${i}].name=this.value" />
+      <input type="text" placeholder="廠商網站（選填，例：www.example.com）" value="${r.url.replace(/"/g,'&quot;')}"
+        oninput="STATE.refSuppliers[${i}].url=this.value" />
+      <button class="btn-remove" onclick="removeRefSupplier(${i})" title="移除">✕</button>
+    </div>
+  `).join('');
+}
+
+// init empty state display
+(function initRefSuppliers() {
+  renderRefSuppliers();
+})();
 
 // ── Chip toggles ────────────────────────────────────────
 function toggleChip(el) { el.classList.toggle('on'); }
@@ -690,9 +747,18 @@ async function doSearch() {
   if (region) prompt += `\n【偏好地區】${region}`;
   if (notes)  prompt += `\n【補充說明】${notes}`;
 
+  const validRefs = STATE.refSuppliers.filter(r => r.name.trim());
+  if (validRefs.length) {
+    prompt += `\n\n【參考廠商】使用者已知以下同類型廠商，請以這些廠商的產品定位、規模、市場為參考基準，搜尋類似的競爭廠商或同供應鏈上的廠商：`;
+    validRefs.forEach(r => {
+      prompt += `\n- ${r.name.trim()}${r.url.trim() ? ' (' + r.url.trim() + ')' : ''}`;
+    });
+    prompt += `\n（不要重複列出以上已知廠商，請找出其他類似的新廠商）`;
+  }
+
   prompt += `
 
-請搜尋並整理至少 6 家符合需求的供應商，以 JSON 格式回覆，格式如下：
+請搜尋並整理 8～10 家符合需求的供應商（若有提供參考廠商，請盡量找到 10 家），以 JSON 格式回覆，格式如下：
 
 【重要網站規則】
 - website 欄位只能填寫你確定真實存在的官網，不確定就留空字串 ""
@@ -770,6 +836,7 @@ async function doSearch() {
     // Save to history (including all form fields for restoration)
     STATE.history.unshift({
       name, cat, desc, moq, budget, certs, region, notes,
+      refSuppliers: JSON.parse(JSON.stringify(STATE.refSuppliers)),
       date: STATE.results.date,
       supplierCount: result.suppliers.length,
       result
@@ -895,6 +962,10 @@ function reloadResult(i) {
     c.classList.toggle('on', !!(h.region && h.region.includes(c.textContent.trim())));
   });
 
+  // Restore reference suppliers
+  STATE.refSuppliers = h.refSuppliers ? JSON.parse(JSON.stringify(h.refSuppliers)) : [];
+  renderRefSuppliers();
+
   // Photos can't be restored from history (not stored)
   STATE.photos = [];
   renderPhotoPreviews();
@@ -1005,6 +1076,8 @@ function clearForm() {
   document.querySelectorAll('.chip.on').forEach(c => c.classList.remove('on'));
   STATE.photos = [];
   renderPhotoPreviews();
+  STATE.refSuppliers = [];
+  renderRefSuppliers();
   document.getElementById('resultsArea').style.display = 'none';
   document.getElementById('photoInput').value = '';
 }
